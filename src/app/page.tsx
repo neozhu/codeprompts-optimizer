@@ -1,3 +1,152 @@
+'use client';
+
+import {useState} from 'react';
+import {Button} from '@/components/ui/button';
+import {Textarea} from '@/components/ui/textarea';
+import {Card, CardContent, CardDescription, CardHeader, CardTitle} from '@/components/ui/card';
+import {Separator} from '@/components/ui/separator';
+import {Tabs, TabsContent, TabsList, TabsTrigger} from '@/components/ui/tabs';
+import {optimizeCodePrompt} from '@/ai/flows/optimize-code-prompt';
+import {summarizeOutputDifferences} from '@/ai/flows/summarize-output-differences';
+import {useToast} from '@/hooks/use-toast';
+import {Alert, AlertDescription, AlertTitle} from "@/components/ui/alert"
+import {Info} from "lucide-react"
+
 export default function Home() {
-  return <></>;
+  const [originalPrompt, setOriginalPrompt] = useState('');
+  const [optimizedPrompt, setOptimizedPrompt] = useState('');
+  const [originalOutput, setOriginalOutput] = useState('');
+  const [optimizedOutput, setOptimizedOutput] = useState('');
+  const [summary, setSummary] = useState('');
+  const [loading, setLoading] = useState(false);
+  const {toast} = useToast();
+
+  const handleOptimizePrompt = async () => {
+    setLoading(true);
+    try {
+      const optimized = await optimizeCodePrompt({originalPrompt});
+      setOptimizedPrompt(optimized.optimizedPrompt);
+      toast({
+        title: 'Prompt Optimized!',
+        description: 'The prompt has been successfully optimized.',
+      });
+    } catch (error: any) {
+      toast({
+        variant: 'destructive',
+        title: 'Error optimizing prompt!',
+        description: error.message,
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleCompareOutputs = async () => {
+    setLoading(true);
+    try {
+      const summaryResult = await summarizeOutputDifferences({
+        originalOutput,
+        optimizedOutput,
+      });
+      setSummary(summaryResult.summary);
+      toast({
+        title: 'Output Compared!',
+        description: 'The outputs have been successfully compared.',
+      });
+    } catch (error: any) {
+      toast({
+        variant: 'destructive',
+        title: 'Error comparing outputs!',
+        description: error.message,
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <div className="container mx-auto py-10">
+      <div className="mb-8 text-center">
+        <h1 className="text-3xl font-bold">CodePrompt Optimizer</h1>
+        <p className="text-muted-foreground">
+          Improve your coding with optimized prompts.
+        </p>
+      </div>
+      <Card className="mb-8">
+        <CardHeader>
+          <CardTitle>Prompt Optimization</CardTitle>
+          <CardDescription>Enter your coding prompt to get an optimized version.</CardDescription>
+        </CardHeader>
+        <CardContent className="grid gap-4">
+          <Textarea
+            placeholder="Enter your coding prompt here..."
+            value={originalPrompt}
+            onChange={(e) => setOriginalPrompt(e.target.value)}
+          />
+          <Button onClick={handleOptimizePrompt} disabled={loading}>
+            {loading ? 'Optimizing...' : 'Optimize Prompt'}
+          </Button>
+          {optimizedPrompt && (
+            <>
+              <Separator />
+              <div>
+                <h3 className="mb-2 text-lg font-semibold">Optimized Prompt:</h3>
+                <Textarea readOnly value={optimizedPrompt} />
+              </div>
+            </>
+          )}
+        </CardContent>
+      </Card>
+      <Card>
+        <CardHeader>
+          <CardTitle>Output Comparison</CardTitle>
+          <CardDescription>Compare the outputs from the original and optimized prompts.</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <Tabs defaultvalue="original">
+            <TabsList className="mb-4">
+              <TabsTrigger value="original">Original Prompt Output</TabsTrigger>
+              <TabsTrigger value="optimized">Optimized Prompt Output</TabsTrigger>
+            </TabsList>
+            <TabsContent value="original">
+              <Textarea
+                placeholder="Enter the output from the original prompt..."
+                value={originalOutput}
+                onChange={(e) => setOriginalOutput(e.target.value)}
+              />
+            </TabsContent>
+            <TabsContent value="optimized">
+              <Textarea
+                placeholder="Enter the output from the optimized prompt..."
+                value={optimizedOutput}
+                onChange={(e) => setOptimizedOutput(e.target.value)}
+              />
+            </TabsContent>
+          </Tabs>
+          <Button onClick={handleCompareOutputs} disabled={loading}>
+            {loading ? 'Comparing...' : 'Compare Outputs'}
+          </Button>
+          {summary && (
+            <>
+              <Separator />
+              <div>
+                <h3 className="mb-2 text-lg font-semibold">Summary:</h3>
+                <Textarea readOnly value={summary} />
+              </div>
+            </>
+          )}
+        </CardContent>
+      </Card>
+      {!originalPrompt && (
+        <Alert className="mt-4">
+          <Info className="h-4 w-4" />
+          <AlertTitle>使用提示</AlertTitle>
+          <AlertDescription>
+            请输入prompt，以优化您的代码.
+          </AlertDescription>
+        </Alert>
+      )}
+    </div>
+  );
 }
+
