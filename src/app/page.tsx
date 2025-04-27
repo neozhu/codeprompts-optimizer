@@ -60,14 +60,8 @@ export default function Home() {
       });
       setOriginalOutput(origResult);
 
-      // 2. Optimize the prompt
-      const { optimizedPrompt } = await optimizeCodePrompt({
-        originalPrompt: samplePrompt,
-        selectedLanguage,
-      });
-      setOptimizedPrompt(optimizedPrompt);
-
-      // 3. Generate with optimized prompt
+      // 2. Generate with optimized prompt
+      // optimizedPrompt guaranteed non-empty when button enabled
       const { output: optResult } = await generateCode({
         prompt: optimizedPrompt,
         language: selectedLanguage,
@@ -153,8 +147,12 @@ export default function Home() {
             <Button onClick={() => handleOptimizePrompt(originalPrompt)} disabled={loading || !originalPrompt}>
               {loading ? 'Optimizing...' : 'Optimize Prompt'}
             </Button>
-            <Button variant="secondary" onClick={handleTestPrompts} disabled={loading}>
-              {loading ? 'Testing...' : '测试'}
+            <Button
+              variant="secondary"
+              onClick={handleTestPrompts}
+              disabled={loading || !optimizedPrompt}
+            >
+              {loading ? 'Testing...' : 'Test Prompts'}
             </Button>
           </div>
           {optimizedPrompt && (
