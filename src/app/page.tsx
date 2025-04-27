@@ -6,11 +6,12 @@ import {Textarea} from '@/components/ui/textarea';
 import {Card, CardContent, CardDescription, CardHeader, CardTitle} from '@/components/ui/card';
 import {Separator} from '@/components/ui/separator';
 import {Tabs, TabsContent, TabsList, TabsTrigger} from '@/components/ui/tabs';
+import {Select, SelectContent, SelectItem, SelectTrigger, SelectValue} from '@/components/ui/select';
 import {optimizeCodePrompt} from '@/ai/flows/optimize-code-prompt';
 import {summarizeOutputDifferences} from '@/ai/flows/summarize-output-differences';
 import {useToast} from '@/hooks/use-toast';
-import {Alert, AlertDescription, AlertTitle} from "@/components/ui/alert"
-import {Info} from "lucide-react"
+import {Alert, AlertDescription, AlertTitle} from "@/components/ui/alert";
+import {Info} from "lucide-react";
 
 export default function Home() {
   const [originalPrompt, setOriginalPrompt] = useState('');
@@ -19,12 +20,16 @@ export default function Home() {
   const [optimizedOutput, setOptimizedOutput] = useState('');
   const [summary, setSummary] = useState('');
   const [loading, setLoading] = useState(false);
+  const [selectedLanguage, setSelectedLanguage] = useState('C#');
   const {toast} = useToast();
 
   const handleOptimizePrompt = async () => {
     setLoading(true);
     try {
-      const optimized = await optimizeCodePrompt({originalPrompt});
+      const optimized = await optimizeCodePrompt({
+        originalPrompt,
+        selectedLanguage,
+      });
       setOptimizedPrompt(optimized.optimizedPrompt);
       toast({
         title: 'Prompt Optimized!',
@@ -78,6 +83,24 @@ export default function Home() {
           <CardDescription>Enter your coding prompt to get an optimized version.</CardDescription>
         </CardHeader>
         <CardContent className="grid gap-4">
+          <Select
+            value={selectedLanguage}
+            onValueChange={setSelectedLanguage}
+            defaultValue="C#"
+          >
+            <SelectTrigger className="w-[180px]">
+              <SelectValue placeholder="Select language" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="C#">C#</SelectItem>
+              <SelectItem value="Python">Python</SelectItem>
+              <SelectItem value="JavaScript">JavaScript</SelectItem>
+              <SelectItem value="TypeScript">TypeScript</SelectItem>
+              <SelectItem value="Java">Java</SelectItem>
+              <SelectItem value="C++">C++</SelectItem>
+              <SelectItem value="Go">Go</SelectItem>
+            </SelectContent>
+          </Select>
           <Textarea
             placeholder="Enter your coding prompt here..."
             value={originalPrompt}
@@ -149,4 +172,3 @@ export default function Home() {
     </div>
   );
 }
-
