@@ -29,8 +29,7 @@ WORKDIR /app
 COPY --from=builder /app/.next ./.next
 COPY --from=builder /app/node_modules ./node_modules
 COPY --from=builder /app/package*.json ./
-COPY --from=builder /app/public ./public
-COPY --from=builder /app/next.config.js ./
+
 
 # 暴露端口（与你在 next.config.js 或启动时使用的保持一致）
 EXPOSE 3000
