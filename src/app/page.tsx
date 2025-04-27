@@ -192,7 +192,7 @@ export default function Home() {
               />
             </TabsContent>
           </Tabs>
-          <Button onClick={handleCompareOutputs} disabled={loading}>
+          <Button className="my-2" onClick={handleCompareOutputs} disabled={loading}>
             {loading ? 'Comparing...' : 'Compare Outputs'}
           </Button>
           {summary && (
