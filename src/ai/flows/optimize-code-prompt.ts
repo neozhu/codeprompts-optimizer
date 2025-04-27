@@ -29,6 +29,13 @@ const OptimizeCodePromptOutputSchema = z.object({
 });
 export type OptimizeCodePromptOutput = z.infer<typeof OptimizeCodePromptOutputSchema>;
 
+export async function testButton(input:OptimizeCodePromptInput): Promise<OptimizeCodePromptOutput> {
+  return {
+    optimizedPrompt: "This is a test string",
+  }
+}
+
+
 export async function optimizeCodePrompt(
   input: OptimizeCodePromptInput
 ): Promise<OptimizeCodePromptOutput> {

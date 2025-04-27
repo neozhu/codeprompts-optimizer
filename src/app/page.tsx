@@ -9,6 +9,7 @@ import {Tabs, TabsContent, TabsList, TabsTrigger} from '@/components/ui/tabs';
 import {Select, SelectContent, SelectItem, SelectTrigger, SelectValue} from '@/components/ui/select';
 import {optimizeCodePrompt} from '@/ai/flows/optimize-code-prompt';
 import {summarizeOutputDifferences} from '@/ai/flows/summarize-output-differences';
+import {generateCode} from '@/ai/flows/generate-from-prompt';
 import {useToast} from '@/hooks/use-toast';
 import {Alert, AlertDescription, AlertTitle} from "@/components/ui/alert";
 import {Info} from "lucide-react";
@@ -23,14 +24,16 @@ export default function Home() {
   const [selectedLanguage, setSelectedLanguage] = useState('C#');
   const {toast} = useToast();
 
-  const handleOptimizePrompt = async () => {
+  const samplePrompt = 'Write a function to sort an array of integers.';
+
+  const handleOptimizePrompt = async (promptToOptimize: string) => {
     setLoading(true);
     try {
-      const optimized = await optimizeCodePrompt({
-        originalPrompt,
+      const { optimizedPrompt } = await optimizeCodePrompt({
+        originalPrompt: promptToOptimize,
         selectedLanguage,
       });
-      setOptimizedPrompt(optimized.optimizedPrompt);
+      setOptimizedPrompt(optimizedPrompt);
       toast({
         title: 'Prompt Optimized!',
         description: 'The prompt has been successfully optimized.',
@@ -39,6 +42,46 @@ export default function Home() {
       toast({
         variant: 'destructive',
         title: 'Error optimizing prompt!',
+        description: error.message,
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleTestPrompts = async () => {
+    setLoading(true);
+    try {
+      // 1. Generate with original prompt
+      setOriginalPrompt(samplePrompt);
+      const { output: origResult } = await generateCode({
+        prompt: samplePrompt,
+        language: selectedLanguage,
+      });
+      setOriginalOutput(origResult);
+
+      // 2. Optimize the prompt
+      const { optimizedPrompt } = await optimizeCodePrompt({
+        originalPrompt: samplePrompt,
+        selectedLanguage,
+      });
+      setOptimizedPrompt(optimizedPrompt);
+
+      // 3. Generate with optimized prompt
+      const { output: optResult } = await generateCode({
+        prompt: optimizedPrompt,
+        language: selectedLanguage,
+      });
+      setOptimizedOutput(optResult);
+
+      toast({
+        title: 'Sample Tested!',
+        description: 'Original and optimized outputs populated.',
+      });
+    } catch (error: any) {
+      toast({
+        variant: 'destructive',
+        title: 'Error testing prompts!',
         description: error.message,
       });
     } finally {
@@ -80,7 +123,7 @@ export default function Home() {
       <Card className="mb-8">
         <CardHeader>
           <CardTitle>Prompt Optimization</CardTitle>
-          <CardDescription>Enter your coding prompt to get an optimized version.</CardDescription>
+          <CardDescription>Enter your coding prompt to get an optimized version or test with a sample.</CardDescription>
         </CardHeader>
         <CardContent className="grid gap-4">
           <Select
@@ -106,9 +149,14 @@ export default function Home() {
             value={originalPrompt}
             onChange={(e) => setOriginalPrompt(e.target.value)}
           />
-          <Button onClick={handleOptimizePrompt} disabled={loading}>
-            {loading ? 'Optimizing...' : 'Optimize Prompt'}
-          </Button>
+          <div className="flex space-x-2">
+            <Button onClick={() => handleOptimizePrompt(originalPrompt)} disabled={loading || !originalPrompt}>
+              {loading ? 'Optimizing...' : 'Optimize Prompt'}
+            </Button>
+            <Button variant="secondary" onClick={handleTestPrompts} disabled={loading}>
+              {loading ? 'Testing...' : '测试'}
+            </Button>
+          </div>
           {optimizedPrompt && (
             <>
               <Separator />
