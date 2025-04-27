@@ -103,7 +103,7 @@ export default function Home() {
           <CardDescription>Compare the outputs from the original and optimized prompts.</CardDescription>
         </CardHeader>
         <CardContent>
-          <Tabs defaultvalue="original">
+          <Tabs defaultValue="original">
             <TabsList className="mb-4">
               <TabsTrigger value="original">Original Prompt Output</TabsTrigger>
               <TabsTrigger value="optimized">Optimized Prompt Output</TabsTrigger>
