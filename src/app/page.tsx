@@ -109,6 +109,15 @@ export default function Home() {
         <p className="text-muted-foreground">
           Improve your coding with optimized prompts.
         </p>
+        {/* GitHub repository link */}
+        <a
+          href="https://github.com/neozhu/codeprompts-optimizer"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="mt-2 inline-block text-sm text-primary underline hover:text-primary/80"
+        >
+          View on GitHub
+        </a>
       </div>
       <Card className="mb-8">
         <CardHeader>
