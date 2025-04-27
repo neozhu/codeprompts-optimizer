@@ -52,16 +52,12 @@ export default function Home() {
   const handleTestPrompts = async () => {
     setLoading(true);
     try {
-      // 1. Generate with original prompt
-      setOriginalPrompt(samplePrompt);
       const { output: origResult } = await generateCode({
-        prompt: samplePrompt,
+        prompt: originalPrompt,
         language: selectedLanguage,
       });
       setOriginalOutput(origResult);
 
-      // 2. Generate with optimized prompt
-      // optimizedPrompt guaranteed non-empty when button enabled
       const { output: optResult } = await generateCode({
         prompt: optimizedPrompt,
         language: selectedLanguage,
@@ -178,21 +174,21 @@ export default function Home() {
               <TabsTrigger value="optimized">Optimized Prompt Output</TabsTrigger>
             </TabsList>
             <TabsContent value="original">
-              <Textarea
+              <Textarea className="h-[350px]"
                 placeholder="Enter the output from the original prompt..."
                 value={originalOutput}
                 onChange={(e) => setOriginalOutput(e.target.value)}
               />
             </TabsContent>
             <TabsContent value="optimized">
-              <Textarea
+              <Textarea className="h-[350px]"
                 placeholder="Enter the output from the optimized prompt..."
                 value={optimizedOutput}
                 onChange={(e) => setOptimizedOutput(e.target.value)}
               />
             </TabsContent>
           </Tabs>
-          <Button className="my-2" onClick={handleCompareOutputs} disabled={loading}>
+          <Button className="my-2" onClick={handleCompareOutputs} disabled={loading || !originalOutput || !optimizedOutput}>
             {loading ? 'Comparing...' : 'Compare Outputs'}
           </Button>
           {summary && (
